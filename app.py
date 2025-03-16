@@ -153,7 +153,6 @@ with kpi_col2:
     )
 # Determine Profitability Color (Green for profit, Red for loss)
 profit_color = "green" if total_profit >= 0 else "red"
-
 with kpi_col3:
     st.markdown(
         f"""
