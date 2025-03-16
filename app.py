@@ -217,64 +217,64 @@ state_abbreviation_map = {
 
 # Map full state names to abbreviations
 df["State"] = df["State"].map(state_abbreviation_map)
-  # ---- Three-column Layout ----
-    col1, col2, col3 = st.columns(3)
-        with col1:
-            # Time Series Line Chart
-            fig_line = px.line(
-                daily_grouped,
-                x="Order Date",
-                y=selected_kpi,
-                title=f"{selected_kpi} Over Time",
-                labels={"Order Date": "Date", selected_kpi: selected_kpi},
-                template="plotly_white",
-            )
-            fig_line.update_layout(height=400)
-            st.plotly_chart(fig_line, use_container_width=True)
-
-        with col2:
-            # Top 10 Products Bar Chart
-            fig_bar = px.bar(
-                top_10,
-                x=selected_kpi,
-                y="Product Name",
-                orientation="h",
-                title=f"Top 10 Products by {selected_kpi}",
-                labels={selected_kpi: selected_kpi, "Product Name": "Product"},
-                color=selected_kpi,
-                color_continuous_scale="Blues",
-                template="plotly_white",
-            )
-            fig_bar.update_layout(
-                height=400,
-                yaxis={"categoryorder": "total ascending"}
-            )
-            st.plotly_chart(fig_bar, use_container_width=True)
-
-        with col3:
-        st.subheader("Profitability by State")
-
-        # Aggregate profit by state
-        state_profit = df.groupby("State").agg({"Profit": "sum"}).reset_index()
-
-        # Ensure all state names are converted to abbreviations
-        state_profit["State"] = state_profit["State"].map(state_abbreviation_map)
-
-        # Drop any states that couldn't be mapped
-        state_profit = state_profit.dropna()
-
-        # Choropleth Heatmap for Profitability
-        fig_map = px.choropleth(
-            state_profit,
-            locations="State",
-            locationmode="USA-states",
-            color="Profit",
-            color_continuous_scale="RdYlGn",  # Red for losses, Green for profits
-            title="Profitability Across States",
-            hover_data=["State", "Profit"],
-            template="plotly_dark",  # Match dark mode styling
-            scope="usa",  # Restrict to USA only
+# ---- Three-column Layout ----
+col1, col2, col3 = st.columns(3)
+    with col1:
+        # Time Series Line Chart
+        fig_line = px.line(
+            daily_grouped,
+            x="Order Date",
+            y=selected_kpi,
+            title=f"{selected_kpi} Over Time",
+            labels={"Order Date": "Date", selected_kpi: selected_kpi},
+            template="plotly_white",
         )
+        fig_line.update_layout(height=400)
+        st.plotly_chart(fig_line, use_container_width=True)
 
-        # Display the map
-        st.plotly_chart(fig_map, use_container_width=True)
+    with col2:
+        # Top 10 Products Bar Chart
+        fig_bar = px.bar(
+            top_10,
+            x=selected_kpi,
+            y="Product Name",
+            orientation="h",
+            title=f"Top 10 Products by {selected_kpi}",
+            labels={selected_kpi: selected_kpi, "Product Name": "Product"},
+            color=selected_kpi,
+            color_continuous_scale="Blues",
+            template="plotly_white",
+        )
+        fig_bar.update_layout(
+            height=400,
+            yaxis={"categoryorder": "total ascending"}
+        )
+        st.plotly_chart(fig_bar, use_container_width=True)
+
+     with col3:
+    st.subheader("Profitability by State")
+
+    # Aggregate profit by state
+    state_profit = df.groupby("State").agg({"Profit": "sum"}).reset_index()
+
+    # Ensure all state names are converted to abbreviations
+    state_profit["State"] = state_profit["State"].map(state_abbreviation_map)
+
+    # Drop any states that couldn't be mapped
+    state_profit = state_profit.dropna()
+
+    # Choropleth Heatmap for Profitability
+    fig_map = px.choropleth(
+        state_profit,
+        locations="State",
+        locationmode="USA-states",
+        color="Profit",
+        color_continuous_scale="RdYlGn",  # Red for losses, Green for profits
+        title="Profitability Across States",
+        hover_data=["State", "Profit"],
+        template="plotly_dark",  # Match dark mode styling
+        scope="usa",  # Restrict to USA only
+    )
+
+# Display the map
+st.plotly_chart(fig_map, use_container_width=True)
