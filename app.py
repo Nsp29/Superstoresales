@@ -174,66 +174,42 @@ with kpi_col4:
         unsafe_allow_html=True
     )
 
-# ---- Profitability by Region Map ----
-st.subheader("Profitability by Region")
-
-# Aggregate profit by region
-region_profit = df_original.groupby("Region").agg({"Profit": "sum"}).reset_index()
-
-# Set color scale (green for profit, red for losses)
-region_profit["Profitability"] = region_profit["Profit"].apply(lambda x: "Profitable" if x > 0 else "Unprofitable")
-
-# Create the map
-fig_map = px.choropleth(
-    region_profit,
-    locations="Region",
-    locationmode="USA-states",
-    color="Profit",
-    color_continuous_scale=["red", "green"],  # Red for negative, Green for positive
-    title="Profitability Across Regions",
-    hover_data=["Region", "Profit"]
-)
-
 # Display the map
 st.plotly_chart(fig_map, use_container_width=True)
 
 # ---- KPI Selection (Affects Both Charts) ----
+# ---- KPI Selection & Visualizations ----
 st.subheader("Visualize KPI Across Time & Top Products")
 
 if df.empty:
     st.warning("No data available for the selected filters and date range.")
 else:
-    # Radio button above both charts
+    # KPI Selection
     kpi_options = ["Sales", "Quantity", "Profit", "Margin Rate"]
     selected_kpi = st.radio("Select KPI to display:", options=kpi_options, horizontal=True)
 
     # ---- Prepare Data for Charts ----
-    # Daily grouping for line chart
     daily_grouped = df.groupby("Order Date").agg({
         "Sales": "sum",
         "Quantity": "sum",
         "Profit": "sum"
     }).reset_index()
-    # Avoid division by zero
     daily_grouped["Margin Rate"] = daily_grouped["Profit"] / daily_grouped["Sales"].replace(0, 1)
 
-    # Product grouping for top 10 chart
     product_grouped = df.groupby("Product Name").agg({
         "Sales": "sum",
         "Quantity": "sum",
         "Profit": "sum"
     }).reset_index()
     product_grouped["Margin Rate"] = product_grouped["Profit"] / product_grouped["Sales"].replace(0, 1)
-
-    # Sort for top 10 by selected KPI
     product_grouped.sort_values(by=selected_kpi, ascending=False, inplace=True)
     top_10 = product_grouped.head(10)
 
-    # ---- Side-by-Side Layout for Charts ----
-    col_left, col_right = st.columns(2)
+    # ---- Three-column Layout ----
+    col1, col2, col3 = st.columns(3)
 
-    with col_left:
-        # Line Chart
+    with col1:
+        # Time Series Line Chart
         fig_line = px.line(
             daily_grouped,
             x="Order Date",
@@ -245,8 +221,8 @@ else:
         fig_line.update_layout(height=400)
         st.plotly_chart(fig_line, use_container_width=True)
 
-    with col_right:
-        # Horizontal Bar Chart
+    with col2:
+        # Top 10 Products Bar Chart
         fig_bar = px.bar(
             top_10,
             x=selected_kpi,
@@ -263,3 +239,26 @@ else:
             yaxis={"categoryorder": "total ascending"}
         )
         st.plotly_chart(fig_bar, use_container_width=True)
+
+    with col3:
+        # ---- Profitability Heatmap (U.S. States) ----
+        st.subheader("Profitability by State")
+
+        # Aggregate profit by state
+        state_profit = df.groupby("State").agg({"Profit": "sum"}).reset_index()
+
+        # Choropleth Heatmap for Profitability
+        fig_map = px.choropleth(
+            state_profit,
+            locations="State",
+            locationmode="USA-states",
+            color="Profit",
+            color_continuous_scale=["red", "green"],  # Losses in Red, Profits in Green
+            title="Profitability Across States",
+            hover_data=["State", "Profit"],
+            template="plotly_white",
+            scope="usa",  # Restrict to USA only
+        )
+
+        # Display the map
+        st.plotly_chart(fig_map, use_container_width=True)
