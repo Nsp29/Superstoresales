@@ -94,17 +94,17 @@ st.markdown(
     """
     <style>
     .kpi-box {
-        background-color: #FFFFFF;
-        border: 2px solid #EAEAEA;
+        background-color: #26096A;
+        border: 2px solid #cfbfbf;
         border-radius: 8px;
-        padding: 16px;
+        padding: 18px;
         margin: 8px;
         text-align: center;
     }
     .kpi-title {
-        font-weight: 600;
+        font-weight: 500;
         color: #333333;
-        font-size: 16px;
+        font-size: 12px;
         margin-bottom: 8px;
     }
     .kpi-value {
