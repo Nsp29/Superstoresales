@@ -229,8 +229,8 @@ with col1:
         labels={"Order Date": "Date", selected_kpi: selected_kpi},
         template="plotly_white",
         )
-        fig_line.update_layout(height=400)
-        st.plotly_chart(fig_line, use_container_width=True)
+    fig_line.update_layout(height=400)
+    st.plotly_chart(fig_line, use_container_width=True)
 
 with col2:
 # Top 10 Products Bar Chart
@@ -245,11 +245,11 @@ with col2:
         color_continuous_scale="Blues",
         template="plotly_white",
         )
-        fig_bar.update_layout(
-            height=400,
-            yaxis={"categoryorder": "total ascending"}
+    fig_bar.update_layout(
+        height=400,
+        yaxis={"categoryorder": "total ascending"}
         )
-        st.plotly_chart(fig_bar, use_container_width=True)
+    st.plotly_chart(fig_bar, use_container_width=True)
 
 with col3:
     st.subheader("Profitability by State")
