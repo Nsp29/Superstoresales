@@ -248,17 +248,6 @@ with col2:
         height=400,
         yaxis={"categoryorder": "total ascending"}
         )
-    # Improve layout and label sizes
-    fig_bar.update_layout(
-        height=400,
-        title_font_size=14,  # Reduce title size for readability
-        xaxis_title_font_size=10,  # Make x-axis label smaller
-        yaxis_title_font_size=10,  # Make y-axis label smaller
-        xaxis_tickfont_size=8,  # Reduce product name font size
-        yaxis_tickfont_size=10,  # Adjust y-axis tick font
-        margin=dict(l=20, r=20, t=40, b=80),  # Adjust bottom margin for longer labels
-        xaxis=dict(tickangle=-45)  # Rotate product names for better readability
-    )
     st.plotly_chart(fig_bar, use_container_width=True)
 
 with col3:
@@ -280,18 +269,6 @@ with col3:
         color_continuous_scale="Blues",
         template="plotly_white",
     )
-    # Improve layout and label sizes
-    fig_bar.update_layout(
-        height=400,
-        title_font_size=14,  # Reduce title size for readability
-        xaxis_title_font_size=10,  # Make x-axis label smaller
-        yaxis_title_font_size=10,  # Make y-axis label smaller
-        xaxis_tickfont_size=8,  # Reduce product name font size
-        yaxis_tickfont_size=10,  # Adjust y-axis tick font
-        margin=dict(l=20, r=20, t=40, b=80),  # Adjust bottom margin for longer labels
-        xaxis=dict(tickangle=-45)  # Rotate product names for better readability
-    )
-
     # Improve layout
     fig_city_bar.update_layout(
         height=400,
