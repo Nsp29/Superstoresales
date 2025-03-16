@@ -218,7 +218,7 @@ state_abbreviation_map = {
 # Map full state names to abbreviations
 df["State"] = df["State"].map(state_abbreviation_map)
   # ---- Three-column Layout ----
-  col1, col2, col3 = st.columns(3)
+    col1, col2, col3 = st.columns(3)
     with col1:
         # Time Series Line Chart
         fig_line = px.line(
