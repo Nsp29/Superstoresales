@@ -19,38 +19,6 @@ def load_data():
 df_original = load_data()
 
 # ---- Sidebar Filters ----
-st.sidebar.title("Filters")
-
-# Region Filter
-all_regions = sorted(df_original["Region"].dropna().unique())
-selected_region = st.sidebar.selectbox("Select Region", options=["All"] + all_regions)
-
-# Filter data by Region
-if selected_region != "All":
-    df_filtered_region = df_original[df_original["Region"] == selected_region]
-else:
-    df_filtered_region = df_original
-
-# State Filter
-all_states = sorted(df_filtered_region["State"].dropna().unique())
-selected_state = st.sidebar.selectbox("Select State", options=["All"] + all_states)
-
-# Filter data by State
-if selected_state != "All":
-    df_filtered_state = df_filtered_region[df_filtered_region["State"] == selected_state]
-else:
-    df_filtered_state = df_filtered_region
-
-# Category Filter
-all_categories = sorted(df_filtered_state["Category"].dropna().unique())
-selected_category = st.sidebar.selectbox("Select Category", options=["All"] + all_categories)
-
-# Filter data by Category
-if selected_category != "All":
-    df_filtered_category = df_filtered_state[df_filtered_state["Category"] == selected_category]
-else:
-    df_filtered_category = df_filtered_state
-
 # ---- Sidebar with Hoverable Filters ----
 with st.sidebar:
     with st.expander("🔍 **Show/Hide Filters**", expanded=False):  # Initially collapsed
@@ -58,19 +26,19 @@ with st.sidebar:
 
         # Region Filter
         all_regions = sorted(df_original["Region"].dropna().unique())
-        selected_region = st.selectbox("Select Region", options=["All"] + all_regions)
+        selected_region = st.selectbox("Select Region", options=["All"] + all_regions, key="region_filter")
 
         # State Filter
         all_states = sorted(df_original["State"].dropna().unique())
-        selected_state = st.selectbox("Select State", options=["All"] + all_states)
+        selected_state = st.selectbox("Select State", options=["All"] + all_states, key="state_filter")
 
         # Category Filter
         all_categories = sorted(df_original["Category"].dropna().unique())
-        selected_category = st.selectbox("Select Category", options=["All"] + all_categories)
+        selected_category = st.selectbox("Select Category", options=["All"] + all_categories, key="category_filter")
 
         # Sub-Category Filter
-        all_subcats = sorted(df_original["Sub-Category"].dropna().unique())
-        selected_subcat = st.selectbox("Select Sub-Category", options=["All"] + all_subcats)
+        all_subcats = sorted(df_filtered_category["Sub-Category"].dropna().unique())
+        selected_subcat = st.selectbox("Select Sub-Category", options=["All"] + all_subcats, key="subcat_filter")
 
         # Date Range Filter
         if df.empty:
@@ -80,12 +48,13 @@ with st.sidebar:
             min_date = df["Order Date"].min()
             max_date = df["Order Date"].max()
 
-        from_date = st.date_input("From Date", value=min_date, min_value=min_date, max_value=max_date)
-        to_date = st.date_input("To Date", value=max_date, min_value=min_date, max_value=max_date)
+        from_date = st.date_input("From Date", value=min_date, min_value=min_date, max_value=max_date, key="from_date")
+        to_date = st.date_input("To Date", value=max_date, min_value=min_date, max_value=max_date, key="to_date")
 
         # Ensure valid date selection
         if from_date > to_date:
             st.error("From Date must be earlier than To Date.")
+
 
 # ---- Page Title ----
 st.title("SuperStore KPI Dashboard")
