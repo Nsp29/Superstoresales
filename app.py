@@ -163,7 +163,6 @@ with kpi_col3:
         """,
         unsafe_allow_html=True
     )
-    )
 with kpi_col4:
     st.markdown(
         f"""
