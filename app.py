@@ -238,7 +238,7 @@ with col2:
         top_10,
         x=selected_kpi,
         y="Product Name",
-        orientation="h",
+        orientation="v",
         title=f"Top 10 Products by {selected_kpi}",
         labels={selected_kpi: selected_kpi, "Product Name": "Product"},
         color=selected_kpi,
