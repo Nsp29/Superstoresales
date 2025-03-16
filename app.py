@@ -115,19 +115,6 @@ st.markdown(
     </style>
     """,
     unsafe_allow_html=True
-
-    st.markdown(
-    """
-    <style>
-    .viz-container {
-        padding: 15px;  /* Adds spacing around visualizations */
-    }
-    .stPlotlyChart {
-        padding: 10px;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
 )
 
 # ---- KPI Calculation ----
