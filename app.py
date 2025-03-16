@@ -23,37 +23,40 @@ df_original = load_data()
 with st.sidebar:
     with st.expander("🔍 **Show/Hide Filters**", expanded=False):  # Initially collapsed
         st.subheader("Filters")
-
-        # Region Filter
-        all_regions = sorted(df_original["Region"].dropna().unique())
-        selected_region = st.selectbox("Select Region", options=["All"] + all_regions, key="region_filter")
-
-        # State Filter
-        all_states = sorted(df_original["State"].dropna().unique())
-        selected_state = st.selectbox("Select State", options=["All"] + all_states, key="state_filter")
-
-        # Category Filter
-        all_categories = sorted(df_original["Category"].dropna().unique())
-        selected_category = st.selectbox("Select Category", options=["All"] + all_categories, key="category_filter")
-
         # Sub-Category Filter
         all_subcats = sorted(df_filtered_category["Sub-Category"].dropna().unique())
-        selected_subcat = st.selectbox("Select Sub-Category", options=["All"] + all_subcats, key="subcat_filter")
+        selected_subcat = st.sidebar.selectbox("Select Sub-Category", options=["All"] + all_subcats)
 
-        # Date Range Filter
+        # Final filter by Sub-Category
+        df = df_filtered_category.copy()
+        if selected_subcat != "All":
+        df = df[df["Sub-Category"] == selected_subcat]
+
+        # ---- Sidebar Date Range (From and To) ----
         if df.empty:
-            min_date = df_original["Order Date"].min()
-            max_date = df_original["Order Date"].max()
+        # If there's no data after filters, default to overall min/max
+        min_date = df_original["Order Date"].min()
+        max_date = df_original["Order Date"].max()
         else:
-            min_date = df["Order Date"].min()
-            max_date = df["Order Date"].max()
+        min_date = df["Order Date"].min()
+        max_date = df["Order Date"].max()
 
-        from_date = st.date_input("From Date", value=min_date, min_value=min_date, max_value=max_date, key="from_date")
-        to_date = st.date_input("To Date", value=max_date, min_value=min_date, max_value=max_date, key="to_date")
+        from_date = st.sidebar.date_input(
+        "From Date", value=min_date, min_value=min_date, max_value=max_date
+        )
+        to_date = st.sidebar.date_input(
+        "To Date", value=max_date, min_value=min_date, max_value=max_date    
+        )
 
-        # Ensure valid date selection
+        # Ensure from_date <= to_date
         if from_date > to_date:
-            st.error("From Date must be earlier than To Date.")
+        st.sidebar.error("From Date must be earlier than To Date.")
+
+        # Apply date range filter
+        df = df[
+        (df["Order Date"] >= pd.to_datetime(from_date))
+        & (df["Order Date"] <= pd.to_datetime(to_date))
+        ]
 
 
 # ---- Page Title ----
