@@ -252,7 +252,6 @@ with col2:
     st.plotly_chart(fig_bar, use_container_width=True)
 
 with col3:
-    st.subheader("Top 10 Cities by Profit in Selected State")
 
     # Aggregate profit by city
     city_profit = df.groupby("City").agg({"Profit": "sum"}).reset_index()
