@@ -252,29 +252,32 @@ with col2:
     st.plotly_chart(fig_bar, use_container_width=True)
 
 with col3:
-    st.subheader("Profitability by State")
+    st.subheader("Top 10 Cities by Profit in Selected State")
 
-    # Aggregate profit by state
-    state_profit = df.groupby("State").agg({"Profit": "sum"}).reset_index()
+    # Aggregate profit by city
+    city_profit = df.groupby("City").agg({"Profit": "sum"}).reset_index()
 
-    # Ensure all state names are converted to abbreviations
-    state_profit["State"] = state_profit["State"].map(state_abbreviation_map)
+    # Sort by profit and take the top 10
+    top_10_cities = city_profit.sort_values(by="Profit", ascending=False).head(10)
 
-    # Drop any states that couldn't be mapped
-    state_profit = state_profit.dropna()
-
-    # Choropleth Heatmap for Profitability
-    fig_map = px.choropleth(
-        state_profit,
-        locations="State",
-        locationmode="USA-states",
+    # Create a horizontal bar chart for top cities
+    fig_city_bar = px.bar(
+        top_10_cities,
+        x="Profit",
+        y="City",
+        orientation="h",
+        title="Top 10 Profitable Cities",
+        labels={"Profit": "Total Profit ($)", "City": "City"},
         color="Profit",
-        color_continuous_scale="RdYlGn",  # Red for losses, Green for profits
-        title="Profitability Across States",
-        hover_data=["State", "Profit"],
-        template="plotly_dark",  # Match dark mode styling
-        scope="usa",  # Restrict to USA only
+        color_continuous_scale="Blues",
+        template="plotly_white",
     )
 
-# Display the map
-st.plotly_chart(fig_map, use_container_width=True)
+    # Improve layout
+    fig_city_bar.update_layout(
+        height=400,
+        yaxis=dict(categoryorder="total ascending"),  # Order by profit
+    )
+
+    # Display the chart
+    st.plotly_chart(fig_city_bar, use_container_width=True)
