@@ -94,8 +94,8 @@ st.markdown(
     """
     <style>
     .kpi-box {
-        background-color: #26096A;
-        border: 2px solid #cfbfbf;
+        background-color: #ffffff;
+        border: 2px solid #EAEAEA;
         border-radius: 8px;
         padding: 18px;
         margin: 8px;
