@@ -174,7 +174,16 @@ with kpi_col4:
         unsafe_allow_html=True
     )
 
+# ---- KPI Selection & Visualizations ----
+st.subheader("Visualize KPI Across Time & Top Products")
 
+# Ensure `selected_kpi` is defined even if data is empty
+kpi_options = ["Sales", "Quantity", "Profit", "Margin Rate"]
+selected_kpi = st.radio("Select KPI to display:", options=kpi_options, horizontal=True)
+
+if df.empty:
+    st.warning("No data available for the selected filters and date range.")
+else:
     # ---- Prepare Data for Charts ----
     daily_grouped = df.groupby("Order Date").agg({
         "Sales": "sum",
