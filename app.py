@@ -18,6 +18,39 @@ def load_data():
 
 df_original = load_data()
 
+# ---- Sidebar Filters ----
+st.sidebar.title("Filters")
+
+# Region Filter
+all_regions = sorted(df_original["Region"].dropna().unique())
+selected_region = st.sidebar.selectbox("Select Region", options=["All"] + all_regions)
+
+# Filter data by Region
+if selected_region != "All":
+    df_filtered_region = df_original[df_original["Region"] == selected_region]
+else:
+    df_filtered_region = df_original
+
+# State Filter
+all_states = sorted(df_filtered_region["State"].dropna().unique())
+selected_state = st.sidebar.selectbox("Select State", options=["All"] + all_states)
+
+# Filter data by State
+if selected_state != "All":
+    df_filtered_state = df_filtered_region[df_filtered_region["State"] == selected_state]
+else:
+    df_filtered_state = df_filtered_region
+
+# Category Filter
+all_categories = sorted(df_filtered_state["Category"].dropna().unique())
+selected_category = st.sidebar.selectbox("Select Category", options=["All"] + all_categories)
+
+# Filter data by Category
+if selected_category != "All":
+    df_filtered_category = df_filtered_state[df_filtered_state["Category"] == selected_category]
+else:
+    df_filtered_category = df_filtered_state
+
 # Sub-Category Filter
 all_subcats = sorted(df_filtered_category["Sub-Category"].dropna().unique())
 selected_subcat = st.sidebar.selectbox("Select Sub-Category", options=["All"] + all_subcats)
@@ -52,6 +85,7 @@ df = df[
     (df["Order Date"] >= pd.to_datetime(from_date))
     & (df["Order Date"] <= pd.to_datetime(to_date))
 ]
+
 # ---- Page Title ----
 st.title("SuperStore KPI Dashboard")
 
