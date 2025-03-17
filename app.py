@@ -266,22 +266,48 @@ with col1:
     st.plotly_chart(fig_line, use_container_width=True)
 
 with col2:
-# Top 10 Products Bar Chart
-    fig_bar = px.bar(
-        top_10,
+    st.markdown("<div class='viz-container'>", unsafe_allow_html=True)
+    
+    # Group data by Category instead of Product Name
+    category_grouped = df.groupby("Category").agg({
+        "Sales": "sum",
+        "Quantity": "sum",
+        "Profit": "sum"
+    }).reset_index()
+
+    # Calculate Margin Rate per Category (Avoid division by zero)
+    category_grouped["Margin Rate"] = category_grouped["Profit"] / category_grouped["Sales"].replace(0, 1)
+
+    # Sort and get Top 10 Categories
+    category_grouped.sort_values(by=selected_kpi, ascending=False, inplace=True)
+    top_10_categories = category_grouped.head(10)
+
+    # Create a bar chart for Top 10 Categories
+    fig_category_bar = px.bar(
+        top_10_categories,
         x=selected_kpi,
-        y="Product Name",
-        title=f"Top 10 Products categories by {selected_kpi}",
-        labels={selected_kpi: selected_kpi, "Product name": "Product"},
+        y="Category",
+        title=f"Top 10 Categories by {selected_kpi}",
+        labels={selected_kpi: selected_kpi, "Category": "Category"},
         color=selected_kpi,
         color_continuous_scale="Blues",
         template="plotly_white",
-        )
-    fig_bar.update_layout(
+    )
+
+    # Improve layout
+    fig_category_bar.update_layout(
         height=400,
-        yaxis={"categoryorder": "total ascending"}
-        )
-    st.plotly_chart(fig_bar, use_container_width=True)
+        title_font_size=14,
+        xaxis_title_font_size=10,
+        yaxis_title_font_size=10,
+        margin=dict(l=20, r=20, t=40, b=40),
+        yaxis=dict(categoryorder="total ascending")  # Order by KPI
+    )
+
+    # Display the chart
+    st.plotly_chart(fig_category_bar, use_container_width=True)
+    st.markdown("</div>", unsafe_allow_html=True)
+
 
 with col3:
 
