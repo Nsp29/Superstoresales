@@ -25,47 +25,39 @@ st.sidebar.title("Filters")
 all_regions = sorted(df_original["Region"].dropna().unique())
 selected_region = st.sidebar.selectbox("Select Region", options=["All"] + all_regions)
 
-# Filter data by Region
-if selected_region != "All":
-    df_filtered_region = df_original[df_original["Region"] == selected_region]
-else:
-    df_filtered_region = df_original
+# Apply Region Filter
+df_filtered_region = df_original if selected_region == "All" else df_original[df_original["Region"] == selected_region]
 
 # State Filter
 all_states = sorted(df_filtered_region["State"].dropna().unique())
 selected_state = st.sidebar.selectbox("Select State", options=["All"] + all_states)
 
-# Filter data by State
-if selected_state != "All":
-    df_filtered_state = df_filtered_region[df_filtered_region["State"] == selected_state]
-else:
-    df_filtered_state = df_filtered_region
+# Apply State Filter
+df_filtered_state = df_filtered_region if selected_state == "All" else df_filtered_region[df_filtered_region["State"] == selected_state]
 
 # Category Filter
 all_categories = sorted(df_filtered_state["Category"].dropna().unique())
 selected_category = st.sidebar.selectbox("Select Category", options=["All"] + all_categories)
 
-# Filter data by Category
-if selected_category != "All":
-    df_filtered_category = df_filtered_state[df_filtered_state["Category"] == selected_category]
-else:
-    df_filtered_category = df_filtered_state
+# Apply Category Filter
+df_filtered_category = df_filtered_state if selected_category == "All" else df_filtered_state[df_filtered_state["Category"] == selected_category]
 
 # Sub-Category Filter
 all_subcats = sorted(df_filtered_category["Sub-Category"].dropna().unique())
 selected_subcat = st.sidebar.selectbox("Select Sub-Category", options=["All"] + all_subcats)
 
-# Final filter by Sub-Category
-df = df_filtered_category.copy()
-if selected_subcat != "All":
-    df = df[df["Sub-Category"] == selected_subcat]
+# Apply Sub-Category Filter
+df_filtered = df_filtered_category if selected_subcat == "All" else df_filtered_category[df_filtered_category["Sub-Category"] == selected_subcat]
 
 # ---- Sidebar Time Period Selection ----
 st.sidebar.subheader("Select Time Period")
 time_period_options = ["1M", "6M", "12M", "YTD"]
 selected_time_period = st.sidebar.selectbox("Select Period", time_period_options, key="time_period_filter")
 
-# ---- Determine Date Range Based on Selected Period ----
+# ---- Convert 'Order Date' to datetime if not already ----
+df_filtered["Order Date"] = pd.to_datetime(df_filtered["Order Date"])
+
+# ---- Apply Date Filter Based on Selected Time Period ----
 today = pd.to_datetime("today")
 
 if selected_time_period == "1M":
@@ -79,11 +71,12 @@ elif selected_time_period == "YTD":  # Year-To-Date
 
 to_date = today  # Always set `to_date` to today
 
-# Apply date range filter
-df = df_original[
-    (df_original["Order Date"] >= from_date) &
-    (df_original["Order Date"] <= to_date)
+# Apply final Date Range Filter
+df = df_filtered[
+    (df_filtered["Order Date"] >= from_date) &
+    (df_filtered["Order Date"] <= to_date)
 ]
+
 # ---- Compute KPI values at Start and End Dates ----
 df_start = df[df["Order Date"] == df["Order Date"].min()]  # Data at the start date
 df_end = df[df["Order Date"] == df["Order Date"].max()]  # Data at the end date
