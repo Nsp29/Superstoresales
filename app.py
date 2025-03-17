@@ -198,6 +198,14 @@ with kpi_col4:
 # ---- KPI Selection & Visualizations ----
 st.subheader("Visualize KPI Across Time & Top Products")
 
+# ---- Add Scale Selection Above Visualizations ----
+scale_option = st.radio(
+    "Select Data Granularity:",
+    ["Category", "Sub-Category", "Product"],
+    horizontal=True,
+    key="scale_option"
+)
+
 # Ensure `selected_kpi` is defined even if data is empty
 kpi_options = ["Sales", "Quantity", "Profit", "Margin Rate"]
 selected_kpi = st.radio("Select KPI to display:", options=kpi_options, horizontal=True)
@@ -268,34 +276,42 @@ with col1:
 with col2:
     st.markdown("<div class='viz-container'>", unsafe_allow_html=True)
     
-    # Group data by Category instead of Product Name
-    category_grouped = df.groupby("Category").agg({
+    # Adjust grouping based on the selected scale
+    if scale_option == "Category":
+        group_field = "Category"
+    elif scale_option == "Sub-Category":
+        group_field = "Sub-Category"
+    else:
+        group_field = "Product Name"
+
+    # Group data dynamically based on selected scale
+    grouped_data = df.groupby(group_field).agg({
         "Sales": "sum",
         "Quantity": "sum",
         "Profit": "sum"
     }).reset_index()
 
-    # Calculate Margin Rate per Category (Avoid division by zero)
-    category_grouped["Margin Rate"] = category_grouped["Profit"] / category_grouped["Sales"].replace(0, 1)
+    # Calculate Margin Rate per selected scale (Avoid division by zero)
+    grouped_data["Margin Rate"] = grouped_data["Profit"] / grouped_data["Sales"].replace(0, 1)
 
-    # Sort and get Top 10 Categories
-    category_grouped.sort_values(by=selected_kpi, ascending=False, inplace=True)
-    top_10_categories = category_grouped.head(10)
+    # Sort and get Top 10
+    grouped_data.sort_values(by=selected_kpi, ascending=False, inplace=True)
+    top_10_grouped = grouped_data.head(10)
 
-    # Create a bar chart for Top 10 Categories
-    fig_category_bar = px.bar(
-        top_10_categories,
+    # Create a bar chart for Top 10 based on selection
+    fig_dynamic_bar = px.bar(
+        top_10_grouped,
         x=selected_kpi,
-        y="Category",
-        title=f"Top 10 Categories by {selected_kpi}",
-        labels={selected_kpi: selected_kpi, "Category": "Category"},
+        y=group_field,
+        title=f"Top 10 {scale_option}s by {selected_kpi}",
+        labels={selected_kpi: selected_kpi, group_field: scale_option},
         color=selected_kpi,
         color_continuous_scale="Blues",
         template="plotly_white",
     )
 
     # Improve layout
-    fig_category_bar.update_layout(
+    fig_dynamic_bar.update_layout(
         height=400,
         title_font_size=14,
         xaxis_title_font_size=10,
@@ -305,9 +321,8 @@ with col2:
     )
 
     # Display the chart
-    st.plotly_chart(fig_category_bar, use_container_width=True)
+    st.plotly_chart(fig_dynamic_bar, use_container_width=True)
     st.markdown("</div>", unsafe_allow_html=True)
-
 
 with col3:
 
