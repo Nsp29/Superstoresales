@@ -270,9 +270,9 @@ with col2:
     fig_bar = px.bar(
         top_10,
         x=selected_kpi,
-        y="Product Name",
-        title=f"Top 10 Products by {selected_kpi}",
-        labels={selected_kpi: selected_kpi, "Product Name": "Product"},
+        y="Product Category",
+        title=f"Top 10 Products categories by {selected_kpi}",
+        labels={selected_kpi: selected_kpi, "Product Category": "Category"},
         color=selected_kpi,
         color_continuous_scale="Blues",
         template="plotly_white",
