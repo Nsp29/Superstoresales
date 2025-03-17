@@ -60,31 +60,52 @@ df = df_filtered_category.copy()
 if selected_subcat != "All":
     df = df[df["Sub-Category"] == selected_subcat]
 
-# ---- Sidebar Date Range (From and To) ----
-if df.empty:
-    # If there's no data after filters, default to overall min/max
-    min_date = df_original["Order Date"].min()
-    max_date = df_original["Order Date"].max()
-else:
-    min_date = df["Order Date"].min()
-    max_date = df["Order Date"].max()
+# ---- Sidebar Time Period Selection ----
+st.sidebar.subheader("Select Time Period")
+time_period_options = ["1M", "6M", "12M", "YTD"]
+selected_time_period = st.sidebar.selectbox("Select Period", time_period_options, key="time_period_filter")
 
-from_date = st.sidebar.date_input(
-    "From Date", value=min_date, min_value=min_date, max_value=max_date
-)
-to_date = st.sidebar.date_input(
-    "To Date", value=max_date, min_value=min_date, max_value=max_date
-)
+# ---- Determine Date Range Based on Selected Period ----
+today = pd.to_datetime("today")
 
-# Ensure from_date <= to_date
-if from_date > to_date:
-    st.sidebar.error("From Date must be earlier than To Date.")
+if selected_time_period == "1M":
+    from_date = today - pd.DateOffset(months=1)
+elif selected_time_period == "6M":
+    from_date = today - pd.DateOffset(months=6)
+elif selected_time_period == "12M":
+    from_date = today - pd.DateOffset(years=1)
+elif selected_time_period == "YTD":  # Year-To-Date
+    from_date = pd.Timestamp(year=today.year, month=1, day=1)  # Start of the year
+
+to_date = today  # Always set `to_date` to today
 
 # Apply date range filter
-df = df[
-    (df["Order Date"] >= pd.to_datetime(from_date))
-    & (df["Order Date"] <= pd.to_datetime(to_date))
+df = df_original[
+    (df_original["Order Date"] >= from_date) &
+    (df_original["Order Date"] <= to_date)
 ]
+# ---- Compute KPI values at Start and End Dates ----
+df_start = df[df["Order Date"] == df["Order Date"].min()]  # Data at the start date
+df_end = df[df["Order Date"] == df["Order Date"].max()]  # Data at the end date
+
+# Calculate values at the start and end of the selected period
+start_sales = df_start["Sales"].sum()
+end_sales = df_end["Sales"].sum()
+
+start_quantity = df_start["Quantity"].sum()
+end_quantity = df_end["Quantity"].sum()
+
+start_profit = df_start["Profit"].sum()
+end_profit = df_end["Profit"].sum()
+
+start_margin = (df_start["Profit"].sum() / df_start["Sales"].sum()) * 100 if df_start["Sales"].sum() != 0 else 0
+end_margin = (df_end["Profit"].sum() / df_end["Sales"].sum()) * 100 if df_end["Sales"].sum() != 0 else 0
+
+# ---- Compute Percentage Growth from Start to End Date ----
+sales_growth = ((end_sales - start_sales) / start_sales) * 100 if start_sales != 0 else 0
+quantity_growth = ((end_quantity - start_quantity) / start_quantity) * 100 if start_quantity != 0 else 0
+profit_growth = ((end_profit - start_profit) / start_profit) * 100 if start_profit != 0 else 0
+margin_growth = ((end_margin - start_margin) / start_margin) * 100 if start_margin != 0 else 0
 
 # ---- Page Title ----
 st.title("SuperStore KPI Dashboard")
@@ -129,50 +150,49 @@ else:
     total_profit = df["Profit"].sum()
     margin_rate = (total_profit / total_sales) if total_sales != 0 else 0
 
+
+# Function to format KPI with growth percentage and arrow
+def format_kpi(value, growth):
+    arrow = "▲" if growth > 0 else "▼"
+    color = "green" if growth > 0 else "red"
+    return f"""
+        <div class='kpi-value' style='color:#1E90FF; font-size:24px; font-weight:700;'>${value:,.2f}</div>
+        <div style='color:{color}; font-size:14px; font-weight:600;'> {arrow} {abs(growth):.1f}%</div>
+    """
 # ---- KPI Display (Rectangles) ----
 kpi_col1, kpi_col2, kpi_col3, kpi_col4 = st.columns(4)
+
 with kpi_col1:
-    st.markdown(
-        f"""
+    st.markdown(f"""
         <div class='kpi-box'>
-            <div class='kpi-title'>Sales</div>
-            <div class='kpi-value'>${total_sales:,.2f}</div>
+            <div class='kpi-title'>Total Sales</div>
+            {format_kpi(end_sales, sales_growth)}
         </div>
-        """,
-        unsafe_allow_html=True
-    )
+    """, unsafe_allow_html=True)
+
 with kpi_col2:
-    st.markdown(
-        f"""
+    st.markdown(f"""
         <div class='kpi-box'>
             <div class='kpi-title'>Quantity Sold</div>
-            <div class='kpi-value'>{total_quantity:,.0f}</div>
+            {format_kpi(end_quantity, quantity_growth)}
         </div>
-        """,
-        unsafe_allow_html=True
-    )
-# Determine Profitability Color (Green for profit, Red for loss)
-profit_color = "green" if total_profit >= 0 else "red"
+    """, unsafe_allow_html=True)
+
 with kpi_col3:
-    st.markdown(
-        f"""
+    st.markdown(f"""
         <div class='kpi-box'>
-            <div class='kpi-title'>Profit</div>
-            <div class='kpi-value' style='color:{profit_color};'>${total_profit:,.2f}</div>
+            <div class='kpi-title'>Total Profit</div>
+            {format_kpi(end_profit, profit_growth)}
         </div>
-        """,
-        unsafe_allow_html=True
-    )
+    """, unsafe_allow_html=True)
+
 with kpi_col4:
-    st.markdown(
-        f"""
+    st.markdown(f"""
         <div class='kpi-box'>
-            <div class='kpi-title'>Margin Rate</div>
-            <div class='kpi-value'>{(margin_rate * 100):,.2f}%</div>
+            <div class='kpi-title'>Profit Margin (%)</div>
+            {format_kpi(end_margin, margin_growth)}
         </div>
-        """,
-        unsafe_allow_html=True
-    )
+    """, unsafe_allow_html=True)
 
 # ---- KPI Selection & Visualizations ----
 st.subheader("Visualize KPI Across Time & Top Products")
