@@ -201,8 +201,15 @@ st.subheader("Visualize KPI Across Time & Top Products")
 kpi_options = ["Sales", "Quantity", "Profit", "Margin Rate"]
 selected_kpi = st.radio("Select KPI to display:", options=kpi_options, horizontal=True)
 
+# ---- Ensure `daily_grouped` is always defined ----
 if df.empty:
     st.warning("No data available for the selected filters and date range.")
+    
+    # Create an empty dataframe with correct columns to prevent errors
+    daily_grouped = pd.DataFrame(columns=["Order Date", "Sales", "Quantity", "Profit", "Margin Rate"])
+    product_grouped = pd.DataFrame(columns=["Product Name", "Sales", "Quantity", "Profit", "Margin Rate"])
+    top_10 = pd.DataFrame(columns=["Product Name", "Sales", "Quantity", "Profit", "Margin Rate"])
+
 else:
     # ---- Prepare Data for Charts ----
     daily_grouped = df.groupby("Order Date").agg({
@@ -210,6 +217,8 @@ else:
         "Quantity": "sum",
         "Profit": "sum"
     }).reset_index()
+    
+    # Avoid division by zero when calculating margin rate
     daily_grouped["Margin Rate"] = daily_grouped["Profit"] / daily_grouped["Sales"].replace(0, 1)
 
     product_grouped = df.groupby("Product Name").agg({
@@ -217,7 +226,10 @@ else:
         "Quantity": "sum",
         "Profit": "sum"
     }).reset_index()
+    
     product_grouped["Margin Rate"] = product_grouped["Profit"] / product_grouped["Sales"].replace(0, 1)
+
+    # Sort for top 10 products
     product_grouped.sort_values(by=selected_kpi, ascending=False, inplace=True)
     top_10 = product_grouped.head(10)
 
