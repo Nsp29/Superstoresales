@@ -139,41 +139,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# ---- Custom CSS for Chart Styling ----
-st.markdown(
-    """
-    <style>
-    /* Style the entire chart container */
-    .stPlotlyChart {
-        background-color: #ffffff;  /* White background */
-        border-radius: 10px;  /* Rounded corners */
-        padding: 20px;  /* Padding inside the chart */
-        margin: 15px 0px;  /* Space between charts */
-        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);  /* Soft shadow */
-    }
-
-    /* Adjust the chart titles */
-    .stPlotlyChart .plot-container .modebar-container {
-        background: none !important; /* Hide default background */
-    }
-
-    /* Make modebar (Zoom, Save, etc.) less obtrusive */
-    .modebar {
-        opacity: 0.7 !important;
-    }
-    
-    /* Style chart tooltips */
-    .stPlotlyChart .plotly-tooltip {
-        font-size: 12px !important;
-        background-color: rgba(0, 0, 0, 0.8) !important;
-        color: white !important;
-        border-radius: 5px !important;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
 # ---- KPI Calculation ----
 if df.empty:
     total_sales = 0
